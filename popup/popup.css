@@ -1,0 +1,20 @@
+body{
+    width: 300px;
+    background-color: blue;
+}
+
+form{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+textarea{
+    width: 250px;
+    height: 100px;
+}
+
+select{
+    width: 250px;
+    height: 30px;
+}
