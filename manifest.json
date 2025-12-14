@@ -11,5 +11,12 @@
     },
     "permissions": [
         "storage"
+    ],
+    "content_scripts": [
+        {
+            "matches": ["https://www.linkedin.com/*"],
+            "js": ["content/content.js"],
+            "run_at": "document_idle"
+        }
     ]
 }

@@ -3,18 +3,28 @@
     <script src="popup.js"></script>
   <body>
     <form id = "jobForm">
-        <input type="text" placeholder="Company Name"></input>
-        <input type="text" placeholder="Job Title"></input>
-        <input type="text" placeholder="Job Link"></input>
-        <select name="status">
+        <input type="text" id="company-name" placeholder="Company Name"></input>
+        <input type="text" id="job-title" placeholder="Job Title"></input>
+        <input type="text" id="job-link" placeholder="Job Link"></input>
+        <select id="application-status" name="status">
             <option value="none" selected disabled>Select Status</option>
             <option value="applied">Applied</option>
             <option value="interviewing">Interviewing</option>
             <option value="offered">Offered</option>
             <option value="rejected">Rejected</option>
         </select>
-        <textarea placeholder="Notes"></textarea>
-        <button type="submit">Save Job</button>
+        <textarea id="application-notes" placeholder="Notes"></textarea>
+        <button id="save-job-button" type="button">Save Job</button>
     </form>
+
+
+    <div id="jobs-list">
+      <section>
+        <h2>Tracked Jobs</h2>
+        <ul id="jobs-entries">
+          <!-- Jobs will be filled by popup.js -->
+        </ul>
+      </section>
+    </div>
   </body>
 </html>

@@ -1,9 +1,10 @@
 body{
     width: 300px;
-    background-color: blue;
+
 }
 
 form{
+    background-color: blue;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -17,4 +18,14 @@ textarea{
 select{
     width: 250px;
     height: 30px;
+}
+
+button{
+    width: 100px;
+    height: 30px;
+    
+}
+
+button:hover{
+    background-color: lightblue;
 }
