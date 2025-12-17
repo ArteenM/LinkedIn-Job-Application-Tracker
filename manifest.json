@@ -10,11 +10,11 @@
         }
     },
     "permissions": [
-        "storage"
+        "storage", "tabs"
     ],
     "content_scripts": [
         {
-            "matches": ["https://www.linkedin.com/*"],
+            "matches": ["https://www.linkedin.com/jobs/search-results/?currentJobId=*", "https://www.linkedin.com/jobs/collections/*"],
             "js": ["content/content.js"],
             "run_at": "document_idle"
         }

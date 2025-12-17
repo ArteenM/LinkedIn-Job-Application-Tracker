@@ -1,6 +1,33 @@
-
-
 document.addEventListener('DOMContentLoaded', function() {
+
+    // Check if we're on LinkedIn and auto-fill form
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        const currentTab = tabs[0];
+        
+        if (currentTab.url && currentTab.url.includes('linkedin.com/jobs')) {
+            console.log("On LinkedIn jobs page, requesting data...");
+            
+            chrome.tabs.sendMessage(currentTab.id, {action: "getJobData"}, function(response) {
+                if (chrome.runtime.lastError) {
+                    console.log("Error:", chrome.runtime.lastError.message);
+                    return;
+                }
+                
+                if (response && response.job) {
+                    console.log("Got job data:", response.job);
+                    autoFillForm(response.job);
+                } else {
+                    console.log("No job data available");
+                }
+            });
+        }
+    });
+
+    function autoFillForm(job) {
+        document.getElementById('company-name').value = job.company || '';
+        document.getElementById('job-title').value = job.position || '';
+        document.getElementById('job-link').value = job.link || '';
+    }
 
     function loadJobs() {
         chrome.storage.local.get(['jobs']).then((result) => {
@@ -28,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    loadJobs(); // Lowad jobs on popup open
+    loadJobs(); // Load jobs on popup open
 
     // Save Job Button
     const trackButton = document.getElementById('save-job-button');

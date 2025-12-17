@@ -1,35 +1,43 @@
 console.log("Content script loaded on:", window.location.href);
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', extractJobData);
-}
-else {
-    extractJobData();
-}
+// Listen for messages from popup
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if (request.action === "getJobData") {
+        console.log("Popup requested job data, extracting...");
+        
+        const jobData = extractJobData();
+        
+        if (jobData) {
+            sendResponse({job: jobData});
+        } else {
+            sendResponse({job: null});
+        }
+    }
+    
+    return true; // Keep message channel open for async response
+});
 
 function extractJobData() {
-    const titleElement = document.querySelector('[class*="job-details-jobs-unified-top-card__job-title"] a');
-    
-    const companyElement = document.querySelector('[class*="job-details-jobs-unified-top-card__company-name"] a');
-
-    const link = window.location.href;
-
-    if (titleElement && companyElement) {
-        const position_title = titleElement.textContent.trim();
-        const company_name = companyElement.textContent.trim();
-
-        const job = {
-            id: Date.now(),
-            company: company_name,
-            position: position_title,
-            link: link,
-            status: 'Not Applied',
-            notes: '',
-            dateAdded: new Date().toISOString()
-        }
-
-        console.log('Detected job:', job);
-    } else {
-        console.log('Job elements not found. Title element:', titleElement, 'Company element:', companyElement);
+    // Check if we're actually looking at a job
+    const urlParams = new URLSearchParams(window.location.search);
+    if (!urlParams.get('currentJobId')) {
+        console.log("Not viewing a specific job");
+        return null;
     }
+    
+    const titleElement = document.querySelector('[class*="job-details-jobs-unified-top-card__job-title"]');
+    const companyElement = document.querySelector('[class*="job-details-jobs-unified-top-card__company-name"]');
+    
+    console.log('title:', titleElement, 'company:', companyElement);
+    
+    if (!titleElement || !companyElement) {
+        console.log("Job elements not found");
+        return null;
+    }
+    
+    return {
+        company: companyElement.textContent.trim(),
+        position: titleElement.textContent.trim(),
+        link: window.location.href
+    };
 }
