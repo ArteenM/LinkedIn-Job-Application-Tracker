@@ -32,25 +32,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadJobs() {
         chrome.storage.local.get(['jobs']).then((result) => {
             const jobs = result.jobs || [];
-            const jobList = document.getElementById('jobs-entries');
-            jobList.innerHTML = ''; // Clear the list
-            console.log('jobs.length', jobs.length);
-            if (jobs.length === 0) {
-                const noJobsItem = document.createElement('li');
-                noJobsItem.textContent = 'No saved jobs.';
-                jobList.appendChild(noJobsItem);
-            }
-            else {
-                jobs.forEach((job) => {
-                const listItem = document.createElement('li');
-                listItem.textContent = `${job.position} at ${job.company} - Status: ${job.status}`;
-                listItem.style.cursor = 'pointer';
-                listItem.addEventListener('click', () => {
-                    chrome.tabs.create({ url: chrome.runtime.getURL('details/details.html') + '?jobId=' + job.id });
-                });
-                console.log('job', job);
-                jobList.appendChild(listItem);
-                });
+            if (jobs.length > 0) {
+                // Auto-fill with the most recent job
+                const recentJob = jobs[jobs.length - 1];
+                autoFillForm(recentJob);
             }
         });
     }
@@ -69,13 +54,35 @@ document.addEventListener('DOMContentLoaded', function() {
             notes: document.getElementById('application-notes').value,
             dateAdded: new Date().toISOString()
         }
+
+        if (!job.company || !job.position || !job.link) {
+            const errorMsg = document.getElementById('error-message');
+            errorMsg.textContent = 'Please fill in all required fields.';
+            errorMsg.style.display = 'block';
+            return;
+        }
         chrome.storage.local.get(['jobs']).then((result) => {
             const updatedJobs = result.jobs || [];
+            for (oldJob of updatedJobs) {
+                if (oldJob.link === job.link) {
+                    const errorMsg = document.getElementById('error-message');
+                    errorMsg.textContent = 'This job is already saved.';
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+            }
             updatedJobs.push(job);
             chrome.storage.local.set({jobs: updatedJobs}).then(() => {
                 console.log('Job saved successfully.');
+                document.getElementById('error-message').style.display = 'none';
                 loadJobs(); // Refresh the list
             });
         });
+    });
+
+    // View All Jobs Button
+    const viewAllButton = document.getElementById('view-all-jobs-button');
+    viewAllButton.addEventListener('click', () => {
+        chrome.tabs.create({ url: chrome.runtime.getURL('jobs-table.html') });
     });
 });

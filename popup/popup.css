@@ -1,31 +1,105 @@
-body{
-    width: 300px;
-
+body {
+    width: 350px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f3f2ef; /* LinkedIn-like background */
+    color: #333;
 }
 
-form{
-    background-color: blue;
+form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
+    margin-bottom: 20px;
 }
 
-textarea{
-    width: 250px;
-    height: 100px;
+input[type="text"], textarea, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
 }
 
-select{
-    width: 250px;
-    height: 30px;
+input[type="text"]:focus, textarea:focus, select:focus {
+    border-color: #0073b1; /* LinkedIn blue */
+    outline: none;
 }
 
-button{
-    width: 100px;
-    height: 30px;
-    
+textarea {
+    height: 80px;
+    resize: vertical;
 }
 
-button:hover{
-    background-color: lightblue;
+select {
+    height: 40px;
+}
+
+button {
+    width: 100%;
+    height: 40px;
+    background-color: #0073b1;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #005885;
+}
+
+#view-all-jobs-button {
+    background-color: #0073b1;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#view-all-jobs-button:hover {
+    background-color: #005885;
+}
+
+#jobs-list {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#jobs-list h2 {
+    margin-top: 0;
+    color: #0073b1;
+}
+
+#jobs-entries {
+    list-style-type: none;
+    padding: 0;
+}
+
+#jobs-entries li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#jobs-entries li:hover {
+    background-color: #f0f0f0;
+}
+
+#jobs-entries li:last-child {
+    border-bottom: none;
 }
