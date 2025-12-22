@@ -14,7 +14,8 @@
     ],
     "content_scripts": [
         {
-            "matches": ["https://www.linkedin.com/jobs/search-results/?currentJobId=*", "https://www.linkedin.com/jobs/collections/*"],
+            "matches": ["https://www.linkedin.com/jobs/search-results/?currentJobId=*", "https://www.linkedin.com/jobs/collections/*",
+            "*://*.indeed.com/viewjob*"],
             "js": ["content/content.js"],
             "run_at": "document_idle"
         }

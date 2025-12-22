@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         const currentTab = tabs[0];
         
-        if (currentTab.url && currentTab.url.includes('linkedin.com/jobs')) {
+        if (currentTab.url && (currentTab.url.includes('linkedin.com/jobs') || currentTab.url.includes('indeed.com/viewjob'))) {
             console.log("On LinkedIn jobs page, requesting data...");
             
             chrome.tabs.sendMessage(currentTab.id, {action: "getJobData"}, function(response) {
@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const jobs = result.jobs || [];
             const jobList = document.getElementById('jobs-entries');
             jobList.innerHTML = ''; // Clear the list
-            console.log('jobs.length', jobs.length);
             if (jobs.length === 0) {
                 const noJobsItem = document.createElement('li');
                 noJobsItem.textContent = 'No saved jobs.';
@@ -48,7 +47,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 listItem.addEventListener('click', () => {
                     chrome.tabs.create({ url: chrome.runtime.getURL('details/details.html') + '?jobId=' + job.id });
                 });
-                console.log('job', job);
                 jobList.appendChild(listItem);
                 });
             }

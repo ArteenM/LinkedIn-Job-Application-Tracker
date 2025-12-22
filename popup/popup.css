@@ -1,31 +1,94 @@
-body{
-    width: 300px;
-
+body {
+    width: 350px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+    color: #333;
 }
 
-form{
-    background-color: blue;
+form {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
+    margin-bottom: 20px;
 }
 
-textarea{
-    width: 250px;
-    height: 100px;
+input[type="text"], select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
 }
 
-select{
-    width: 250px;
-    height: 30px;
+input[type="text"]:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #0077b5;
+    box-shadow: 0 0 5px rgba(0, 119, 181, 0.3);
 }
 
-button{
-    width: 100px;
-    height: 30px;
-    
+textarea {
+    height: 80px;
+    resize: vertical;
+    min-height: 60px;
 }
 
-button:hover{
-    background-color: lightblue;
+select {
+    height: 40px;
+}
+
+button {
+    width: 100%;
+    height: 40px;
+    background-color: #0077b5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #005582;
+}
+
+#jobs-list {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#jobs-list h2 {
+    margin-top: 0;
+    color: #0077b5;
+    font-size: 18px;
+}
+
+#jobs-entries {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#jobs-entries li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#jobs-entries li:hover {
+    background-color: #f1f3f4;
+}
+
+#jobs-entries li:last-child {
+    border-bottom: none;
 }
