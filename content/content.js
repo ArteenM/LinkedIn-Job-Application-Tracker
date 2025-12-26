@@ -5,7 +5,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === "getJobData") {
         console.log("Popup requested job data, extracting...");
         // Check which link it game from
-        if (window.location.href.includes('linkedin.com/jobs')) {
+        if (window.location.href.includes('linkedin.com')) {
             const jobData = extractLinkedInJobData();
             if (jobData) {
                 sendResponse({job: jobData});
@@ -15,7 +15,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             return true; // Keep message channel open for async response
         }
 
-        if (window.location.href.includes('indeed.com/viewjob')) {
+        if (window.location.href.includes('indeed.com')) {
             const jobData = extractIndeedJobData();
             if (jobData) {
                 sendResponse({job: jobData});
@@ -57,20 +57,20 @@ function extractLinkedInJobData() {
 function extractIndeedJobData() {
     console.log("Extracting Indeed job data");
     const urlParams = new URLSearchParams(window.location.search);
-    if (!urlParams.get('jk')) {
+    if (!urlParams.get('vjk')) {
         console.log("Not viewing a specific job on Indeed");
         return null;
     }
 
-    const titleElement = document.querySelector('h1.jobsearch-JobInfoHeader-title');
+    const titleElement = document.querySelector('h2.jobsearch-JobInfoHeader-title');
     const companyElement = document.querySelector('span.css-qcqa6h');
+
+    console.log('titleElement', titleElement.textContent.trim(), 'companyElement', companyElement.textContent.trim());
 
     if (!titleElement && !companyElement) {
         console.log("Indeed job elements not found");
         return null;
     }
-
-    console.log('title', titleElement, 'company', companyElement);
 
     return {
         company: companyElement ? companyElement.textContent.trim() : '',

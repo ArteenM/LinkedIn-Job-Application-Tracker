@@ -1,25 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-    // Check if we're on LinkedIn and auto-fill form
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        const currentTab = tabs[0];
-        
-        if (currentTab.url && (currentTab.url.includes('linkedin.com/jobs') || currentTab.url.includes('indeed.com/viewjob'))) {
-            console.log("On LinkedIn jobs page, requesting data...");
-            
-            chrome.tabs.sendMessage(currentTab.id, {action: "getJobData"}, function(response) {
-                if (chrome.runtime.lastError) {
-                    console.log("Error:", chrome.runtime.lastError.message);
-                    return;
-                }
-                
-                if (response && response.job) {
-                    console.log("Got job data:", response.job);
-                    autoFillForm(response.job);
-                } else {
-                    console.log("No job data available");
-                }
-            });
+    // Load current job data from storage
+    chrome.storage.local.get(['currentJob'], (result) => {
+        if (result.currentJob) {
+            console.log("Loaded current job:", result.currentJob);
+            autoFillForm(result.currentJob);
+        } else {
+            console.log("No current job data available");
         }
     });
 
@@ -28,32 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('job-title').value = job.position || '';
         document.getElementById('job-link').value = job.link || '';
     }
-
-    function loadJobs() {
-        chrome.storage.local.get(['jobs']).then((result) => {
-            const jobs = result.jobs || [];
-            const jobList = document.getElementById('jobs-entries');
-            jobList.innerHTML = ''; // Clear the list
-            if (jobs.length === 0) {
-                const noJobsItem = document.createElement('li');
-                noJobsItem.textContent = 'No saved jobs.';
-                jobList.appendChild(noJobsItem);
-            }
-            else {
-                jobs.forEach((job) => {
-                const listItem = document.createElement('li');
-                listItem.textContent = `${job.position} at ${job.company} - Status: ${job.status}`;
-                listItem.style.cursor = 'pointer';
-                listItem.addEventListener('click', () => {
-                    chrome.tabs.create({ url: chrome.runtime.getURL('details/details.html') + '?jobId=' + job.id });
-                });
-                jobList.appendChild(listItem);
-                });
-            }
-        });
-    }
-
-    loadJobs(); // Load jobs on popup open
 
     // Save Job Button
     const trackButton = document.getElementById('save-job-button');
@@ -88,7 +49,6 @@ document.addEventListener('DOMContentLoaded', function() {
             chrome.storage.local.set({jobs: updatedJobs}).then(() => {
                 console.log('Job saved successfully.');
                 document.getElementById('error-message').style.display = 'none';
-                loadJobs(); // Refresh the list
             });
         });
     });

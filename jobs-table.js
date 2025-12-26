@@ -1,6 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
     loadJobsTable();
 
+    // Select all checkbox
+    document.getElementById('select-all').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.job-checkbox');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+
+    // Delete selected jobs
+    document.getElementById('delete-selected').addEventListener('click', deleteSelectedJobs);
+
     function loadJobsTable() {
         chrome.storage.local.get(['jobs']).then((result) => {
             const jobs = result.jobs || [];
@@ -10,18 +19,27 @@ document.addEventListener('DOMContentLoaded', function() {
             if (jobs.length === 0) {
                 const row = tbody.insertRow();
                 const cell = row.insertCell(0);
-                cell.colSpan = 6;
+                cell.colSpan = 7;
                 cell.textContent = 'No jobs tracked yet.';
                 return;
             }
 
             jobs.forEach((job, index) => {
                 const row = tbody.insertRow();
-                row.insertCell(0).textContent = job.company;
-                row.insertCell(1).textContent = job.position;
+
+                // Checkbox cell
+                const checkboxCell = row.insertCell(0);
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'job-checkbox';
+                checkbox.dataset.index = index;
+                checkboxCell.appendChild(checkbox);
+
+                row.insertCell(1).textContent = job.company;
+                row.insertCell(2).textContent = job.position;
 
                 // Status cell with select
-                const statusCell = row.insertCell(2);
+                const statusCell = row.insertCell(3);
                 const statusSelect = document.createElement('select');
                 statusSelect.innerHTML = `
                     <option value="Applied">Applied</option>
@@ -36,23 +54,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 statusCell.appendChild(statusSelect);
 
                 // Notes cell, contenteditable
-                const notesCell = row.insertCell(3);
+                const notesCell = row.insertCell(4);
                 notesCell.contentEditable = true;
                 notesCell.textContent = job.notes || '';
                 notesCell.addEventListener('blur', () => {
                     updateJob(index, 'notes', notesCell.textContent.trim());
                 });
 
-                row.insertCell(4).textContent = new Date(job.dateAdded).toLocaleDateString();
-
-                // Actions cell with delete button
-                const actionsCell = row.insertCell(5);
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
-                deleteButton.addEventListener('click', () => {
-                    deleteJob(index);
-                });
-                actionsCell.appendChild(deleteButton);
+                row.insertCell(5).innerHTML = `<a href="${job.link}" target="_blank">View Job</a>`;
+                row.insertCell(6).textContent = new Date(job.dateAdded).toLocaleDateString();
             });
         });
     }
@@ -67,11 +77,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function deleteJob(index) {
-        if (confirm('Are you sure you want to delete this job?')) {
+    function deleteSelectedJobs() {
+        const checkboxes = document.querySelectorAll('.job-checkbox:checked');
+        if (checkboxes.length === 0) {
+            alert('No jobs selected.');
+            return;
+        }
+        if (confirm(`Are you sure you want to delete ${checkboxes.length} job(s)?`)) {
             chrome.storage.local.get(['jobs']).then((result) => {
                 const jobs = result.jobs || [];
-                jobs.splice(index, 1);
+                const indices = Array.from(checkboxes).map(cb => parseInt(cb.dataset.index)).sort((a, b) => b - a);
+                indices.forEach(idx => jobs.splice(idx, 1));
                 chrome.storage.local.set({jobs: jobs}).then(() => {
                     loadJobsTable(); // Refresh the table
                 });

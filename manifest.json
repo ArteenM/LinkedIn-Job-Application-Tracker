@@ -10,12 +10,15 @@
         }
     },
     "permissions": [
-        "storage", "tabs"
+        "storage", "tabs", "activeTab"
     ],
+    "background": {
+        "service_worker": "background.js"
+    },
     "content_scripts": [
         {
             "matches": ["https://www.linkedin.com/jobs/search-results/?currentJobId=*", "https://www.linkedin.com/jobs/collections/*",
-            "*://*.indeed.com/viewjob*"],
+            "*://*.indeed.com/*"],
             "js": ["content/content.js"],
             "run_at": "document_idle"
         }
