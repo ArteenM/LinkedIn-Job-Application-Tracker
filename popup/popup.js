@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             console.log("No current job data available");
         }
+        // After autoFill, load saved form data
+        loadSavedFormData();
     });
 
     function autoFillForm(job) {
@@ -15,6 +17,44 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('job-title').value = job.position || '';
         document.getElementById('job-link').value = job.link || '';
     }
+
+    function loadSavedFormData() {
+        chrome.storage.local.get(['popupFormData'], (result) => {
+            if (result.popupFormData) {
+                const data = result.popupFormData;
+                // Set fields if they are empty
+                if (!document.getElementById('company-name').value) {
+                    document.getElementById('company-name').value = data.company || '';
+                }
+                if (!document.getElementById('job-title').value) {
+                    document.getElementById('job-title').value = data.position || '';
+                }
+                if (!document.getElementById('job-link').value) {
+                    document.getElementById('job-link').value = data.link || '';
+                }
+                document.getElementById('application-status').value = data.status || 'Applied';
+                document.getElementById('application-notes').value = data.notes || '';
+            }
+        });
+    }
+
+    function saveFormData() {
+        const data = {
+            company: document.getElementById('company-name').value,
+            position: document.getElementById('job-title').value,
+            link: document.getElementById('job-link').value,
+            status: document.getElementById('application-status').value,
+            notes: document.getElementById('application-notes').value
+        };
+        chrome.storage.local.set({popupFormData: data});
+    }
+
+    // Add event listeners to save form data on change
+    document.getElementById('company-name').addEventListener('input', saveFormData);
+    document.getElementById('job-title').addEventListener('input', saveFormData);
+    document.getElementById('job-link').addEventListener('input', saveFormData);
+    document.getElementById('application-status').addEventListener('change', saveFormData);
+    document.getElementById('application-notes').addEventListener('input', saveFormData);
 
     // Save Job Button
     const trackButton = document.getElementById('save-job-button');
@@ -49,6 +89,14 @@ document.addEventListener('DOMContentLoaded', function() {
             chrome.storage.local.set({jobs: updatedJobs}).then(() => {
                 console.log('Job saved successfully.');
                 document.getElementById('error-message').style.display = 'none';
+                // Clear the form
+                document.getElementById('company-name').value = '';
+                document.getElementById('job-title').value = '';
+                document.getElementById('job-link').value = '';
+                document.getElementById('application-status').value = 'Applied';
+                document.getElementById('application-notes').value = '';
+                // Remove saved form data
+                chrome.storage.local.remove(['popupFormData']);
             });
         });
     });

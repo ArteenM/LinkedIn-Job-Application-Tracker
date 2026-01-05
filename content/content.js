@@ -3,7 +3,6 @@ console.log("Content script loaded", window.location.href);
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === "getJobData") {
-        console.log("Popup requested job data, extracting...");
         // Check which link it game from
         if (window.location.href.includes('linkedin.com')) {
             const jobData = extractLinkedInJobData();
@@ -14,14 +13,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             }
             return true; // Keep message channel open for async response
         }
-
         if (window.location.href.includes('indeed.com')) {
-            const jobData = extractIndeedJobData();
-            if (jobData) {
-                sendResponse({job: jobData});
-            } else {
-                sendResponse({job: null});
-            }
+            extractIndeedJobDataAsync(sendResponse);
             return true; // Keep message channel open for async response
         }
     }
@@ -54,27 +47,45 @@ function extractLinkedInJobData() {
     };
 }
 
-function extractIndeedJobData() {
-    console.log("Extracting Indeed job data");
-    const urlParams = new URLSearchParams(window.location.search);
-    if (!urlParams.get('vjk')) {
-        console.log("Not viewing a specific job on Indeed");
-        return null;
-    }
+function extractIndeedJobDataAsync(sendResponse) {
+    console.log("Waiting for Indeed job data...");
 
-    const titleElement = document.querySelector('h2.jobsearch-JobInfoHeader-title');
-    const companyElement = document.querySelector('span.css-qcqa6h');
+    const observer = new MutationObserver(() => {
+        const titleElement = document.querySelector(
+            'h2.jobsearch-JobInfoHeader-title'
+        );
+        const companyElement = document.querySelector(
+            'span.css-qcqa6h'
+        );
 
-    console.log('titleElement', titleElement.textContent.trim(), 'companyElement', companyElement.textContent.trim());
+        if (
+            titleElement &&
+            titleElement.textContent.trim() &&
+            companyElement &&
+            companyElement.textContent.trim()
+        ) {
+            observer.disconnect();
 
-    if (!titleElement && !companyElement) {
-        console.log("Indeed job elements not found");
-        return null;
-    }
+            console.log("Indeed job data found");
 
-    return {
-        company: companyElement ? companyElement.textContent.trim() : '',
-        position: titleElement ? titleElement.textContent.trim() : '',
-        link: window.location.href
-    };
+            sendResponse({
+                job: {
+                    position: titleElement.textContent.trim(),
+                    company: companyElement.textContent.trim(),
+                    link: window.location.href
+                }
+            });
+        }
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
+    // Safety timeout so popup doesn't hang forever
+    setTimeout(() => {
+        observer.disconnect();
+        sendResponse({ job: null });
+    }, 4000);
 }
